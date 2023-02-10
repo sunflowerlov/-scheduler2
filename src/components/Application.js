@@ -1,27 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios"
 import "components/Application.scss";
 
 import DayList from "./DayList";
 import "components/Appointment"
 import Appointment from "components/Appointment/index";
 
-const days = [
-  {
-    id: 1,
-    name: "Monday",
-    spots: 2,
-  },
-  {
-    id: 2,
-    name: "Tuesday",
-    spots: 5,
-  },
-  {
-    id: 3,
-    name: "Wednesday",
-    spots: 0,
-  },
-];
+// const days = [
+//   {
+//     id: 1,
+//     name: "Monday",
+//     spots: 2,
+//   },
+//   {
+//     id: 2,
+//     name: "Tuesday",
+//     spots: 5,
+//   },
+//   {
+//     id: 3,
+//     name: "Wednesday",
+//     spots: 0,
+//   },
+// ];
 
 const appointments = {
   "1": {
@@ -63,7 +64,31 @@ const appointments = {
 };
 
 export default function Application(props) {
-  const [day, setDay] = useState("Monday")
+  // const [day, setDay] = useState("Monday")
+  // const [days, setDays] = useState([])
+
+  const [state, setState] = useState({
+    day: "Monday",
+    days: [],
+    // you may put the line below, but will have to remove/comment hardcoded appointments variable
+    appointments: {}
+  });
+  const setDay = day => setState({ ...state, day });
+  const setDays = (days) => {
+    //... your code here ...
+    setState(prev => ({ ...prev, days }));
+
+    
+}
+
+
+
+  useEffect(() => {
+    const URL = `/api/days`;
+    axios.get(URL).then(response => {
+      setDays([...response.data]) //setState({...state, days: [...response.data]})
+    })
+  }, [])
 
   return (
     <main className="layout">
@@ -76,8 +101,8 @@ export default function Application(props) {
         <hr className="sidebar__separator sidebar--centered" />
         <nav className="sidebar__menu">
           <DayList
-            days={days}
-            value={day}
+            days={state.days}
+            value={state.day}
             onChange={() => setDay}
           />
 
