@@ -5,64 +5,7 @@ import "components/Application.scss";
 import DayList from "./DayList";
 import "components/Appointment"
 import Appointment from "components/Appointment/index";
-import { getAppointmentsForDay, getInterview } from "helpers/selectors";
-
-// const days = [
-//   {
-//     id: 1,
-//     name: "Monday",
-//     spots: 2,
-//   },
-//   {
-//     id: 2,
-//     name: "Tuesday",
-//     spots: 5,
-//   },
-//   {
-//     id: 3,
-//     name: "Wednesday",
-//     spots: 0,
-//   },
-// ];
-
-// const appointments = {
-//   "1": {
-//     id: 1,
-//     time: "12pm",
-//   },
-//   "2": {
-//     id: 2,
-//     time: "1pm",
-//     interview: {
-//       student: "Lydia Miller-Jones",
-//       interviewer: {
-//         id: 3,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   },
-//   "3": {
-//     id: 3,
-//     time: "2pm",
-//   },
-//   "4": {
-//     id: 4,
-//     time: "3pm",
-//     interview: {
-//       student: "Archie Andrews",
-//       interviewer: {
-//         id: 4,
-//         name: "Cohana Roy",
-//         avatar: "https://i.imgur.com/FK8V841.jpg",
-//       }
-//     }
-//   },
-//   "5": {
-//     id: 5,
-//     time: "4pm",
-//   }
-// };
+import { getAppointmentsForDay, getInterview, getInterviewersForDay } from "helpers/selectors";
 
 export default function Application(props) {
   //state
@@ -98,6 +41,47 @@ export default function Application(props) {
     })
   }, [])
 
+  function bookInterview(id, interview) {
+    console.log("book",id, interview);
+
+    const appointment = {
+      ...state.appointments[id], // apps:{"1": {id: 1, time: "12pm", interview: null}}
+      interview: { ...interview }
+    };
+
+    const appointments = {
+      ...state.appointments, // all apps keep here
+      [id]: appointment //store new apps into this obj
+    };
+
+    return axios.put(`/api/appointments/${id}`, { interview })
+    .then(()=> {
+      setState({...state, appointments});
+
+    })
+    
+  }
+  
+  function cancelInterview(id) {
+
+    const appointment = {
+      ...state.appointments[id],
+      interview: null
+    }
+
+    const appointments = {
+      ...state.appointments, // all apps keep here
+      [id]: appointment //store new apps into this obj
+    };
+
+    return axios.delete(`/api/appointments/${id}`)
+    .then(()=> {
+      setState({...state, appointments});
+
+    })
+
+  }
+
 
   return (
     <main className="layout">
@@ -112,7 +96,7 @@ export default function Application(props) {
           <DayList
             days={state.days}
             value={state.day}
-            onChange={() => setDay}
+            onChange={setDay}
           />
 
         </nav>
@@ -127,13 +111,17 @@ export default function Application(props) {
         {dailyAppointments.map((appointment) => {
           console.log("app", appointment)
           const interview = getInterview(state, appointment.interview);
+          const interviewers = getInterviewersForDay(state, state.day)
+          // console.log("interviewer~", interviewers)
           return (
             <Appointment
             key={appointment.id}
             id={appointment.id}
             time={appointment.time}
             interview={interview}
-            interviewers={[]}
+            interviewers={interviewers}
+            bookInterview={bookInterview}
+            cancelInterview={cancelInterview}
           />
           )
         })}
