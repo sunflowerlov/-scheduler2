@@ -30,7 +30,7 @@ export default function Form(props) {
       return;
     }
 
-    //setError("");
+    setError(""); //reset error, remove warning message
     onSave(student, interviewer);
   }
   
