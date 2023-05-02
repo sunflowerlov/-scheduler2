@@ -79,11 +79,11 @@ export default function useApplicationData() {
       [id]: appointment //store new apps into this obj
     };
 
-    const daysSpot = updateSpots(appointments, id);
+    const days = updateSpots(appointments, id);
 
     return axios.put(`/api/appointments/${id}`, { interview })
       .then(() => {
-        setState({ ...state, appointments, daysSpot });
+        setState({ ...state, appointments, days });
 
       })
 
@@ -101,10 +101,10 @@ export default function useApplicationData() {
       [id]: appointment //store new apps into this obj
     };
 
-   const daysSpot = updateSpots(appointments, id);
+   const days = updateSpots(appointments, id);
     return axios.delete(`/api/appointments/${id}`)
       .then(() => {
-        setState({ ...state, appointments, daysSpot});
+        setState({ ...state, appointments, days});
 
       })
 
